@@ -52,6 +52,14 @@ export function Header() {
           <Button variant="ghost" size="icon" className="rounded-full">
             <Search className="h-5 w-5" />
           </Button>
+          <Link to="/cart">
+            <Button variant="ghost" size="icon" className="rounded-full relative">
+              <ShoppingBag className="h-5 w-5" />
+              <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground text-xs rounded-full flex items-center justify-center">
+                3
+              </span>
+            </Button>
+          </Link>
           <Button variant="ghost" size="icon" className="rounded-full">
             <User className="h-5 w-5" />
           </Button>
