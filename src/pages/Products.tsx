@@ -1,4 +1,5 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ProductCard } from "@/components/home/ProductCard";
@@ -37,7 +38,8 @@ const categories = ["Art", "Fashion", "Home", "Electronics", "Jewelry"];
 type SortOption = "name-asc" | "name-desc" | "price-asc" | "price-desc" | "newest";
 
 export default function Products() {
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "");
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 500]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
