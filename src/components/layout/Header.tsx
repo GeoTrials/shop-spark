@@ -1,46 +1,37 @@
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { Menu, X, ShoppingBag, Search, User } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { Menu, X, ShoppingCart, User } from "lucide-react";
 
 const navLinks = [
   { href: "/", label: "Home" },
-  { href: "/shop", label: "Shop" },
+  { href: "/products", label: "Products" },
   { href: "/vendors", label: "Vendors" },
   { href: "/about", label: "About" },
   { href: "/faq", label: "FAQ" },
 ];
 
 export function Header() {
-  const [isOpen, setIsOpen] = useState(false);
-  const location = useLocation();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/80 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-primary">
-            <ShoppingBag className="h-5 w-5 text-primary-foreground" />
+        <Link to="/" className="flex items-center space-x-2">
+          <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
+            <span className="text-primary-foreground font-bold text-lg">M</span>
           </div>
-          <span className="text-xl font-bold tracking-tight">
-            Market<span className="text-gradient">Hub</span>
-          </span>
+          <span className="font-bold text-xl">Marketplace</span>
         </Link>
 
-        {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-1">
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex items-center space-x-8">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               to={link.href}
-              className={cn(
-                "px-4 py-2 text-sm font-medium rounded-full transition-colors",
-                location.pathname === link.href
-                  ? "bg-secondary text-foreground"
-                  : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
-              )}
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
               {link.label}
             </Link>
@@ -48,61 +39,60 @@ export function Header() {
         </nav>
 
         {/* Desktop Actions */}
-        <div className="hidden md:flex items-center gap-2">
-          <Button variant="ghost" size="icon" className="rounded-full">
-            <Search className="h-5 w-5" />
-          </Button>
+        <div className="hidden md:flex items-center space-x-4">
           <Link to="/cart">
-            <Button variant="ghost" size="icon" className="rounded-full relative">
-              <ShoppingBag className="h-5 w-5" />
-              <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground text-xs rounded-full flex items-center justify-center">
+            <Button variant="ghost" size="icon" className="relative">
+              <ShoppingCart className="h-5 w-5" />
+              <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center">
                 3
               </span>
             </Button>
           </Link>
-          <Button variant="ghost" size="icon" className="rounded-full">
+          <Button variant="ghost" size="icon">
             <User className="h-5 w-5" />
           </Button>
-          <Button variant="default" size="sm">
-            Start Selling
-          </Button>
+          <Button>Sign In</Button>
         </div>
 
         {/* Mobile Menu Button */}
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="md:hidden p-2 rounded-full hover:bg-secondary transition-colors"
-        >
-          {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-        </button>
+        <div className="flex md:hidden items-center space-x-2">
+          <Link to="/cart">
+            <Button variant="ghost" size="icon" className="relative">
+              <ShoppingCart className="h-5 w-5" />
+              <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center">
+                3
+              </span>
+            </Button>
+          </Link>
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="p-2"
+          >
+            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Menu */}
-      {isOpen && (
-        <div className="md:hidden absolute top-16 left-0 right-0 bg-background border-b border-border animate-slide-up">
-          <nav className="container py-4 flex flex-col gap-1">
+      {isMenuOpen && (
+        <div className="md:hidden border-t bg-background">
+          <nav className="container py-4 flex flex-col space-y-4">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 to={link.href}
-                onClick={() => setIsOpen(false)}
-                className={cn(
-                  "px-4 py-3 text-base font-medium rounded-xl transition-colors",
-                  location.pathname === link.href
-                    ? "bg-secondary text-foreground"
-                    : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
-                )}
+                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                onClick={() => setIsMenuOpen(false)}
               >
                 {link.label}
               </Link>
             ))}
-            <div className="flex gap-2 mt-4 pt-4 border-t border-border">
-              <Button variant="outline" className="flex-1">
-                Sign In
+            <div className="pt-4 border-t flex flex-col space-y-2">
+              <Button variant="outline" className="w-full">
+                <User className="h-4 w-4 mr-2" />
+                Account
               </Button>
-              <Button variant="default" className="flex-1">
-                Start Selling
-              </Button>
+              <Button className="w-full">Sign In</Button>
             </div>
           </nav>
         </div>
