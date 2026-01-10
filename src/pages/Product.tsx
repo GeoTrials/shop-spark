@@ -37,6 +37,13 @@ const productData = {
     sales: 2341,
     verified: true,
   },
+  // Stock & Availability
+  stock: {
+    total: 50,
+    remaining: 12,
+    sold: 38,
+    status: "low" as "in_stock" | "low" | "out_of_stock" | "sold",
+  },
   isAuction: true,
   currentBid: 78.50,
   startingBid: 45.00,
@@ -87,11 +94,11 @@ export default function Product() {
         <div className="container py-6">
           {/* Back Button */}
           <Link
-            to="/shop"
+            to="/products"
             className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back to Shop
+            Back to Products
           </Link>
 
           <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
@@ -237,6 +244,61 @@ export default function Product() {
                   </Button>
                 </div>
               )}
+
+              {/* Stock Availability */}
+              <div className="p-4 rounded-xl border border-border bg-card space-y-3">
+                <h3 className="font-semibold flex items-center gap-2">
+                  {productData.stock.status === "out_of_stock" || productData.stock.status === "sold" ? (
+                    <AlertTriangle className="h-4 w-4 text-destructive" />
+                  ) : productData.stock.status === "low" ? (
+                    <AlertTriangle className="h-4 w-4 text-warning" />
+                  ) : (
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                  )}
+                  Availability
+                </h3>
+                
+                {productData.stock.status === "sold" ? (
+                  <Badge variant="destructive" className="text-sm">Sold Out</Badge>
+                ) : productData.stock.status === "out_of_stock" ? (
+                  <Badge variant="destructive" className="text-sm">Out of Stock</Badge>
+                ) : (
+                  <>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">In Stock</span>
+                      <span className={cn(
+                        "font-semibold",
+                        productData.stock.status === "low" ? "text-warning" : "text-green-500"
+                      )}>
+                        {productData.stock.remaining} left
+                      </span>
+                    </div>
+                    
+                    {/* Stock progress bar */}
+                    <div className="w-full h-2 bg-secondary rounded-full overflow-hidden">
+                      <div 
+                        className={cn(
+                          "h-full rounded-full transition-all",
+                          productData.stock.status === "low" ? "bg-warning" : "bg-green-500"
+                        )}
+                        style={{ width: `${(productData.stock.remaining / productData.stock.total) * 100}%` }}
+                      />
+                    </div>
+                    
+                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                      <span>{productData.stock.sold} sold</span>
+                      <span>{productData.stock.total} total</span>
+                    </div>
+                    
+                    {productData.stock.status === "low" && (
+                      <p className="text-xs text-warning font-medium">
+                        ⚡ Low stock - order soon!
+                      </p>
+                    )}
+                  </>
+                )}
+
+              </div>
 
               {/* Actions */}
               <div className="flex gap-3">
