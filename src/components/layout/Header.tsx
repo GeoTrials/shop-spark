@@ -27,9 +27,9 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center gap-4">
         {/* Logo */}
-        <Link to="/" className="flex items-center space-x-2 flex-shrink-0">
+        <Link to="/" className="flex items-center gap-1 flex-shrink-0">
           <img src={logoImg} alt="iMall logo" className="h-8 w-8 rounded-full" />
-          <span className="font-bold text-xl hidden sm:inline">iMall</span>
+          <span className="font-bold text-xl hidden sm:inline -ml-1">Mall</span>
         </Link>
 
         {/* Center Search - Always Expanded */}

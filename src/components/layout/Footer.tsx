@@ -29,10 +29,10 @@ export function Footer() {
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
           {/* Brand */}
           <div className="space-y-4">
-            <Link to="/" className="flex items-center gap-2">
+            <Link to="/" className="flex items-center gap-1">
               <img src={logoImg} alt="iMall logo" className="h-9 w-9 rounded-full" />
               <span className="text-xl font-bold tracking-tight">
-                i<span className="text-gradient">Mall</span>
+                <span className="text-gradient">Mall</span>
               </span>
             </Link>
             <p className="text-sm text-muted-foreground max-w-xs">
