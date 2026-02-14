@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Menu, X, ShoppingCart, User, Search } from "lucide-react";
+import { Menu, X, ShoppingCart, User, Search, ChevronDown } from "lucide-react";
 import logoImg from "@/assets/logo.png";
 
 const navLinks = [
@@ -10,10 +10,33 @@ const navLinks = [
   { href: "/faq", label: "FAQ" },
 ];
 
+const categories = [
+  { name: "Art & Collectibles", href: "/products?category=Art" },
+  { name: "Fashion", href: "/products?category=Fashion" },
+  { name: "Home & Living", href: "/products?category=Home" },
+  { name: "Electronics", href: "/products?category=Electronics" },
+  { name: "Jewelry", href: "/products?category=Jewelry" },
+  { name: "Sports & Outdoors", href: "/products?category=Sports" },
+  { name: "Books & Media", href: "/products?category=Books" },
+  { name: "Handmade Crafts", href: "/products?category=Crafts" },
+];
+
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
+  const categoryRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (categoryRef.current && !categoryRef.current.contains(e.target as Node)) {
+        setIsCategoryOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,6 +81,30 @@ export function Header() {
         {/* Desktop Navigation & Actions */}
         <div className="hidden md:flex items-center space-x-4 flex-shrink-0">
           <nav className="flex items-center space-x-6">
+            {/* Categories Dropdown */}
+            <div ref={categoryRef} className="relative">
+              <button
+                onClick={() => setIsCategoryOpen(!isCategoryOpen)}
+                className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Categories
+                <ChevronDown className={`h-4 w-4 transition-transform ${isCategoryOpen ? 'rotate-180' : ''}`} />
+              </button>
+              {isCategoryOpen && (
+                <div className="absolute top-full left-0 mt-2 w-56 rounded-lg border bg-popover p-2 shadow-lg z-50">
+                  {categories.map((cat) => (
+                    <Link
+                      key={cat.name}
+                      to={cat.href}
+                      onClick={() => setIsCategoryOpen(false)}
+                      className="block rounded-md px-3 py-2 text-sm text-popover-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+                    >
+                      {cat.name}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
             {navLinks.map((link) => (
               <Link
                 key={link.href}
@@ -107,6 +154,23 @@ export function Header() {
       {isMenuOpen && (
         <div className="md:hidden border-t bg-background">
           <nav className="container py-4 flex flex-col space-y-4">
+            {/* Mobile Categories */}
+            <div className="space-y-2">
+              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Categories</span>
+              <div className="grid grid-cols-2 gap-2">
+                {categories.map((cat) => (
+                  <Link
+                    key={cat.name}
+                    to={cat.href}
+                    onClick={() => setIsMenuOpen(false)}
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {cat.name}
+                  </Link>
+                ))}
+              </div>
+            </div>
+            <div className="border-t pt-4 space-y-4">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
@@ -117,6 +181,7 @@ export function Header() {
                 {link.label}
               </Link>
             ))}
+            </div>
             <div className="pt-4 border-t flex flex-col space-y-2">
               <Button variant="outline" className="w-full">
                 <User className="h-4 w-4 mr-2" />
