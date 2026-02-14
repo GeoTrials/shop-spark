@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Menu, X, ShoppingCart, User, Search } from "lucide-react";
+import logoImg from "@/assets/logo.png";
 
 const navLinks = [
   { href: "/products", label: "Products" },
@@ -27,10 +28,8 @@ export function Header() {
       <div className="container flex h-16 items-center gap-4">
         {/* Logo */}
         <Link to="/" className="flex items-center space-x-2 flex-shrink-0">
-          <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-lg">M</span>
-          </div>
-          <span className="font-bold text-xl hidden sm:inline">Marketplace</span>
+          <img src={logoImg} alt="iMall logo" className="h-8 w-8 rounded-full" />
+          <span className="font-bold text-xl hidden sm:inline">iMall</span>
         </Link>
 
         {/* Center Search - Always Expanded */}

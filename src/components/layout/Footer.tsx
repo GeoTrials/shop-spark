@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { ShoppingBag, Twitter, Instagram, Youtube } from "lucide-react";
+import { Twitter, Instagram, Youtube } from "lucide-react";
+import logoImg from "@/assets/logo.png";
 
 const footerLinks = {
   product: [
@@ -15,9 +16,9 @@ const footerLinks = {
     { label: "Careers", href: "/about" },
   ],
   legal: [
-    { label: "Privacy", href: "/faq" },
-    { label: "Terms", href: "/faq" },
-    { label: "Cookies", href: "/faq" },
+    { label: "Privacy", href: "/legal" },
+    { label: "Terms", href: "/legal" },
+    { label: "Cookies", href: "/legal" },
   ],
 };
 
@@ -29,11 +30,9 @@ export function Footer() {
           {/* Brand */}
           <div className="space-y-4">
             <Link to="/" className="flex items-center gap-2">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-primary">
-                <ShoppingBag className="h-5 w-5 text-primary-foreground" />
-              </div>
+              <img src={logoImg} alt="iMall logo" className="h-9 w-9 rounded-full" />
               <span className="text-xl font-bold tracking-tight">
-                Market<span className="text-gradient">Hub</span>
+                i<span className="text-gradient">Mall</span>
               </span>
             </Link>
             <p className="text-sm text-muted-foreground max-w-xs">
@@ -106,7 +105,7 @@ export function Footer() {
 
         <div className="mt-12 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-muted-foreground">
-            © 2025 MarketHub. All rights reserved.
+            © 2026 iMall. All rights reserved.
           </p>
           <p className="text-sm text-muted-foreground">
             Made with ❤️ for vendors worldwide
