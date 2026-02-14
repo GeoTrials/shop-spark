@@ -2,28 +2,19 @@ import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Menu, X, ShoppingCart, User, Search, ChevronDown } from "lucide-react";
+import { Menu, X, ShoppingCart, User, Search, ChevronDown, ChevronRight } from "lucide-react";
 import logoImg from "@/assets/logo.png";
+import { MegaMenu, megaCategories } from "./MegaMenu";
 
 const navLinks = [
   { href: "/products", label: "Products" },
   { href: "/faq", label: "FAQ" },
 ];
 
-const categories = [
-  { name: "Art & Collectibles", href: "/products?category=Art" },
-  { name: "Fashion", href: "/products?category=Fashion" },
-  { name: "Home & Living", href: "/products?category=Home" },
-  { name: "Electronics", href: "/products?category=Electronics" },
-  { name: "Jewelry", href: "/products?category=Jewelry" },
-  { name: "Sports & Outdoors", href: "/products?category=Sports" },
-  { name: "Books & Media", href: "/products?category=Books" },
-  { name: "Handmade Crafts", href: "/products?category=Crafts" },
-];
-
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+  const [expandedMobileCat, setExpandedMobileCat] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
   const categoryRef = useRef<HTMLDivElement>(null);
@@ -81,29 +72,17 @@ export function Header() {
         {/* Desktop Navigation & Actions */}
         <div className="hidden md:flex items-center space-x-4 flex-shrink-0">
           <nav className="flex items-center space-x-6">
-            {/* Categories Dropdown */}
+            {/* Categories Dropdown Trigger */}
             <div ref={categoryRef} className="relative">
               <button
+                onMouseEnter={() => setIsCategoryOpen(true)}
                 onClick={() => setIsCategoryOpen(!isCategoryOpen)}
                 className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
               >
-                Categories
-                <ChevronDown className={`h-4 w-4 transition-transform ${isCategoryOpen ? 'rotate-180' : ''}`} />
+                <Menu className="h-4 w-4" />
+                All Categories
+                <ChevronDown className={`h-3.5 w-3.5 transition-transform ${isCategoryOpen ? 'rotate-180' : ''}`} />
               </button>
-              {isCategoryOpen && (
-                <div className="absolute top-full left-0 mt-2 w-56 rounded-lg border bg-popover p-2 shadow-lg z-50">
-                  {categories.map((cat) => (
-                    <Link
-                      key={cat.name}
-                      to={cat.href}
-                      onClick={() => setIsCategoryOpen(false)}
-                      className="block rounded-md px-3 py-2 text-sm text-popover-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
-                    >
-                      {cat.name}
-                    </Link>
-                  ))}
-                </div>
-              )}
             </div>
             {navLinks.map((link) => (
               <Link
@@ -150,38 +129,75 @@ export function Header() {
         </div>
       </div>
 
+      {/* Desktop Mega Menu */}
+      <div
+        ref={categoryRef}
+        onMouseLeave={() => setIsCategoryOpen(false)}
+      >
+        <MegaMenu isOpen={isCategoryOpen} onClose={() => setIsCategoryOpen(false)} />
+      </div>
+
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="md:hidden border-t bg-background">
-          <nav className="container py-4 flex flex-col space-y-4">
-            {/* Mobile Categories */}
-            <div className="space-y-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Categories</span>
-              <div className="grid grid-cols-2 gap-2">
-                {categories.map((cat) => (
-                  <Link
-                    key={cat.name}
-                    to={cat.href}
-                    onClick={() => setIsMenuOpen(false)}
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                  >
+        <div className="md:hidden border-t bg-background max-h-[80vh] overflow-y-auto">
+          <nav className="container py-4 flex flex-col space-y-1">
+            {/* Mobile Categories - Accordion Style */}
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground px-2 pb-2">
+              Categories
+            </span>
+            {megaCategories.map((cat) => (
+              <div key={cat.name}>
+                <button
+                  onClick={() =>
+                    setExpandedMobileCat(expandedMobileCat === cat.name ? null : cat.name)
+                  }
+                  className="w-full flex items-center justify-between px-2 py-2.5 text-sm font-medium text-foreground hover:bg-muted/50 rounded-md transition-colors"
+                >
+                  <span className="flex items-center gap-3">
+                    <span>{cat.icon}</span>
                     {cat.name}
-                  </Link>
-                ))}
+                  </span>
+                  <ChevronRight
+                    className={`h-4 w-4 text-muted-foreground transition-transform ${
+                      expandedMobileCat === cat.name ? "rotate-90" : ""
+                    }`}
+                  />
+                </button>
+                {expandedMobileCat === cat.name && (
+                  <div className="pl-10 pb-2 space-y-1">
+                    <Link
+                      to={cat.href}
+                      onClick={() => setIsMenuOpen(false)}
+                      className="block py-1.5 text-sm font-medium text-primary"
+                    >
+                      All {cat.name}
+                    </Link>
+                    {cat.subcategories.map((sub) => (
+                      <Link
+                        key={sub.name}
+                        to={sub.href}
+                        onClick={() => setIsMenuOpen(false)}
+                        className="block py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        {sub.name}
+                      </Link>
+                    ))}
+                  </div>
+                )}
               </div>
-            </div>
-            <div className="border-t pt-4 space-y-4">
+            ))}
+
+            <div className="border-t my-2" />
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 to={link.href}
-                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                className="px-2 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
                 {link.label}
               </Link>
             ))}
-            </div>
             <div className="pt-4 border-t flex flex-col space-y-2">
               <Button variant="outline" className="w-full">
                 <User className="h-4 w-4 mr-2" />
