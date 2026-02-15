@@ -5,19 +5,79 @@ import { Link } from "react-router-dom";
 export function HeroSection() {
   return (
     <section className="relative overflow-hidden bg-gradient-hero min-h-[600px] flex items-center">
-      {/* Animated gradient blobs */}
-      <div className="absolute top-1/4 -left-20 w-[400px] h-[400px] rounded-full bg-primary/15 blur-[100px] animate-float" />
-      <div
-        className="absolute bottom-1/4 right-0 w-[500px] h-[500px] rounded-full bg-primary/10 blur-[120px] animate-float"
-        style={{ animationDelay: "2s" }}
-      />
-      <div
-        className="absolute top-10 right-1/4 w-[300px] h-[300px] rounded-full bg-accent/10 blur-[80px] animate-float"
-        style={{ animationDelay: "4s" }}
-      />
-      <div
-        className="absolute -bottom-10 left-1/3 w-[350px] h-[350px] rounded-full bg-primary/8 blur-[90px] animate-pulse-soft"
-      />
+      {/* Animated SVG gradient blobs */}
+      <svg
+        className="absolute inset-0 w-full h-full pointer-events-none"
+        viewBox="0 0 1200 700"
+        preserveAspectRatio="xMidYMid slice"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <defs>
+          <radialGradient id="blob1Grad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="hsl(160 84% 39% / 0.3)" />
+            <stop offset="100%" stopColor="hsl(160 84% 39% / 0)" />
+          </radialGradient>
+          <radialGradient id="blob2Grad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="hsl(170 84% 35% / 0.25)" />
+            <stop offset="100%" stopColor="hsl(170 84% 35% / 0)" />
+          </radialGradient>
+          <radialGradient id="blob3Grad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="hsl(150 60% 45% / 0.2)" />
+            <stop offset="100%" stopColor="hsl(150 60% 45% / 0)" />
+          </radialGradient>
+          <filter id="blobBlur">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="40" />
+          </filter>
+        </defs>
+
+        {/* Blob 1 - top left, slow drift */}
+        <g filter="url(#blobBlur)">
+          <path fill="url(#blob1Grad)">
+            <animate
+              attributeName="d"
+              dur="12s"
+              repeatCount="indefinite"
+              values="
+                M150,250 Q300,100 450,200 T600,350 Q500,500 300,450 T150,250;
+                M180,220 Q350,80 480,230 T580,380 Q460,520 270,470 T180,220;
+                M150,250 Q300,100 450,200 T600,350 Q500,500 300,450 T150,250
+              "
+            />
+          </path>
+        </g>
+
+        {/* Blob 2 - right side, floating */}
+        <g filter="url(#blobBlur)">
+          <path fill="url(#blob2Grad)">
+            <animate
+              attributeName="d"
+              dur="15s"
+              repeatCount="indefinite"
+              values="
+                M700,150 Q900,80 1050,200 T1100,400 Q950,550 800,480 T700,150;
+                M730,180 Q880,50 1020,170 T1080,430 Q980,530 830,450 T730,180;
+                M700,150 Q900,80 1050,200 T1100,400 Q950,550 800,480 T700,150
+              "
+            />
+          </path>
+        </g>
+
+        {/* Blob 3 - center bottom, pulsing */}
+        <g filter="url(#blobBlur)">
+          <path fill="url(#blob3Grad)">
+            <animate
+              attributeName="d"
+              dur="10s"
+              repeatCount="indefinite"
+              values="
+                M400,400 Q550,300 650,420 T700,550 Q600,650 450,600 T400,400;
+                M420,380 Q580,280 680,400 T720,530 Q620,670 430,620 T420,380;
+                M400,400 Q550,300 650,420 T700,550 Q600,650 450,600 T400,400
+              "
+            />
+          </path>
+        </g>
+      </svg>
 
       <div className="container py-16 md:py-24 lg:py-32 relative z-10">
         <div className="mx-auto max-w-3xl text-center">
@@ -59,7 +119,7 @@ export function HeroSection() {
             </Button>
           </div>
 
-          {/* Trust signals instead of false stats */}
+          {/* Trust signals */}
           <div
             className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-14 pt-8 border-t border-border/50 animate-fade-in"
             style={{ animationDelay: "0.3s" }}
