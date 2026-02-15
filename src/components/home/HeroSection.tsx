@@ -14,19 +14,22 @@ export function HeroSection() {
       >
         <defs>
           <radialGradient id="blob1Grad" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="hsl(160 84% 39% / 0.3)" />
+            <stop offset="0%" stopColor="hsl(160 84% 39% / 0.55)" />
+            <stop offset="70%" stopColor="hsl(160 84% 39% / 0.15)" />
             <stop offset="100%" stopColor="hsl(160 84% 39% / 0)" />
           </radialGradient>
           <radialGradient id="blob2Grad" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="hsl(170 84% 35% / 0.25)" />
+            <stop offset="0%" stopColor="hsl(170 84% 35% / 0.45)" />
+            <stop offset="70%" stopColor="hsl(170 84% 35% / 0.1)" />
             <stop offset="100%" stopColor="hsl(170 84% 35% / 0)" />
           </radialGradient>
           <radialGradient id="blob3Grad" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="hsl(150 60% 45% / 0.2)" />
-            <stop offset="100%" stopColor="hsl(150 60% 45% / 0)" />
+            <stop offset="0%" stopColor="hsl(145 70% 40% / 0.4)" />
+            <stop offset="70%" stopColor="hsl(145 70% 40% / 0.1)" />
+            <stop offset="100%" stopColor="hsl(145 70% 40% / 0)" />
           </radialGradient>
           <filter id="blobBlur">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="40" />
+            <feGaussianBlur in="SourceGraphic" stdDeviation="30" />
           </filter>
         </defs>
 
@@ -35,12 +38,14 @@ export function HeroSection() {
           <path fill="url(#blob1Grad)">
             <animate
               attributeName="d"
-              dur="12s"
+              dur="8s"
               repeatCount="indefinite"
+              calcMode="spline"
+              keySplines="0.4 0 0.2 1; 0.4 0 0.2 1"
               values="
-                M150,250 Q300,100 450,200 T600,350 Q500,500 300,450 T150,250;
-                M180,220 Q350,80 480,230 T580,380 Q460,520 270,470 T180,220;
-                M150,250 Q300,100 450,200 T600,350 Q500,500 300,450 T150,250
+                M100,200 Q350,50 550,180 T700,400 Q550,580 250,500 T100,200;
+                M200,150 Q400,20 600,250 T650,450 Q400,600 150,480 T200,150;
+                M100,200 Q350,50 550,180 T700,400 Q550,580 250,500 T100,200
               "
             />
           </path>
@@ -51,12 +56,14 @@ export function HeroSection() {
           <path fill="url(#blob2Grad)">
             <animate
               attributeName="d"
-              dur="15s"
+              dur="10s"
               repeatCount="indefinite"
+              calcMode="spline"
+              keySplines="0.4 0 0.2 1; 0.4 0 0.2 1"
               values="
-                M700,150 Q900,80 1050,200 T1100,400 Q950,550 800,480 T700,150;
-                M730,180 Q880,50 1020,170 T1080,430 Q980,530 830,450 T730,180;
-                M700,150 Q900,80 1050,200 T1100,400 Q950,550 800,480 T700,150
+                M650,100 Q950,30 1100,220 T1150,450 Q900,620 700,520 T650,100;
+                M750,200 Q850,60 1050,150 T1080,500 Q1000,580 800,400 T750,200;
+                M650,100 Q950,30 1100,220 T1150,450 Q900,620 700,520 T650,100
               "
             />
           </path>
@@ -67,12 +74,14 @@ export function HeroSection() {
           <path fill="url(#blob3Grad)">
             <animate
               attributeName="d"
-              dur="10s"
+              dur="7s"
               repeatCount="indefinite"
+              calcMode="spline"
+              keySplines="0.4 0 0.2 1; 0.4 0 0.2 1"
               values="
-                M400,400 Q550,300 650,420 T700,550 Q600,650 450,600 T400,400;
-                M420,380 Q580,280 680,400 T720,530 Q620,670 430,620 T420,380;
-                M400,400 Q550,300 650,420 T700,550 Q600,650 450,600 T400,400
+                M300,350 Q550,250 700,400 T750,600 Q550,700 350,620 T300,350;
+                M450,300 Q600,200 750,380 T780,550 Q650,700 400,650 T450,300;
+                M300,350 Q550,250 700,400 T750,600 Q550,700 350,620 T300,350
               "
             />
           </path>
