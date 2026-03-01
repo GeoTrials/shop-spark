@@ -1,4 +1,4 @@
-import { ArrowRight, Sparkles, ShieldCheck, Truck, Star } from "lucide-react";
+import { ArrowRight, ShoppingBag, Package, CreditCard, Search, Tag, Heart, Store } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useEffect, useRef } from "react";
@@ -179,25 +179,47 @@ export function HeroSection() {
         style={{ pointerEvents: "auto" }}
       />
 
+      {/* Floating shop icons */}
+      <div className="absolute inset-0 z-[5] pointer-events-none overflow-hidden">
+        <div className="absolute top-[12%] left-[8%] animate-float opacity-20">
+          <ShoppingBag className="h-10 w-10 text-primary" />
+        </div>
+        <div className="absolute top-[18%] right-[12%] animate-float opacity-15" style={{ animationDelay: "1s" }}>
+          <Tag className="h-8 w-8 text-primary" />
+        </div>
+        <div className="absolute bottom-[22%] left-[15%] animate-float opacity-15" style={{ animationDelay: "2s" }}>
+          <Package className="h-9 w-9 text-primary" />
+        </div>
+        <div className="absolute bottom-[30%] right-[10%] animate-float opacity-20" style={{ animationDelay: "3s" }}>
+          <Heart className="h-7 w-7 text-primary" />
+        </div>
+        <div className="absolute top-[45%] left-[5%] animate-float opacity-10" style={{ animationDelay: "4s" }}>
+          <CreditCard className="h-8 w-8 text-primary" />
+        </div>
+        <div className="absolute top-[55%] right-[6%] animate-float opacity-10" style={{ animationDelay: "2.5s" }}>
+          <Store className="h-9 w-9 text-primary" />
+        </div>
+      </div>
+
       <div className="container py-16 md:py-24 lg:py-32 relative z-10 pointer-events-none">
         <div className="mx-auto max-w-3xl text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6 animate-fade-in backdrop-blur-sm border border-primary/20 pointer-events-auto">
-            <Sparkles className="h-4 w-4" />
+            <Store className="h-4 w-4" />
             <span>Multi-Vendor Marketplace</span>
           </div>
 
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight mb-6 animate-slide-up">
-            Discover & Shop from{" "}
-            <span className="text-gradient">Trusted</span>
-            {" "}Vendors
+            One Place to{" "}
+            <span className="text-gradient">Browse, Compare</span>
+            {" "}&amp; Buy
           </h1>
 
           <p
             className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto animate-slide-up"
             style={{ animationDelay: "0.1s" }}
           >
-            Browse unique products, bid on exclusive auctions, and connect
-            directly with sellers. Your next favorite find is just a click away.
+            We bring independent sellers together so you can explore products
+            across categories, compare prices, and check out in one cart.
           </p>
 
           <div
@@ -206,40 +228,35 @@ export function HeroSection() {
           >
             <Button variant="hero" size="lg" asChild>
               <Link to="/shop">
-                Start Shopping
-                <ArrowRight className="h-5 w-5" />
+                <Search className="h-5 w-5" />
+                Browse Products
               </Link>
             </Button>
             <Button variant="outline" size="lg" asChild>
-              <Link to="/about">Become a Vendor</Link>
+              <Link to="/about">
+                <Store className="h-5 w-5" />
+                Open Your Shop
+              </Link>
             </Button>
           </div>
 
           <div
-            className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-14 pt-8 border-t border-border/50 animate-fade-in"
+            className="flex flex-wrap justify-center gap-3 mt-12 animate-fade-in"
             style={{ animationDelay: "0.3s" }}
           >
-            <div className="flex flex-col items-center gap-2">
-              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                <ShieldCheck className="h-5 w-5 text-primary" />
+            {[
+              { icon: ShoppingBag, label: "Multi-vendor cart" },
+              { icon: CreditCard, label: "Secure checkout" },
+              { icon: Package, label: "Order tracking" },
+            ].map(({ icon: Icon, label }) => (
+              <div
+                key={label}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-background/60 backdrop-blur-sm border border-border/60 text-sm text-muted-foreground"
+              >
+                <Icon className="h-4 w-4 text-primary" />
+                {label}
               </div>
-              <p className="text-sm font-semibold text-foreground">Verified Vendors</p>
-              <p className="text-xs text-muted-foreground">Every seller is vetted</p>
-            </div>
-            <div className="flex flex-col items-center gap-2">
-              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                <Truck className="h-5 w-5 text-primary" />
-              </div>
-              <p className="text-sm font-semibold text-foreground">Fast Shipping</p>
-              <p className="text-xs text-muted-foreground">Direct from sellers to you</p>
-            </div>
-            <div className="flex flex-col items-center gap-2">
-              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                <Star className="h-5 w-5 text-primary" />
-              </div>
-              <p className="text-sm font-semibold text-foreground">Buyer Protection</p>
-              <p className="text-xs text-muted-foreground">Shop with confidence</p>
-            </div>
+            ))}
           </div>
         </div>
       </div>
