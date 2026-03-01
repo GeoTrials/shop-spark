@@ -303,12 +303,12 @@ export function HeroSection() {
           return (
             <div
               key={i}
-              className="absolute flex items-center justify-center transition-transform"
+              className="absolute flex items-center justify-center"
               style={{
                 left: node.x,
                 top: node.y,
                 transform: "translate(-50%, -50%)",
-                animation: `float ${5 + (i % 3)}s ease-in-out infinite ${i * 0.4}s, spin-slow ${20 + i * 5}s linear infinite`,
+                animation: `icon-drift-${i % 4} ${6 + (i % 3) * 2}s ease-in-out infinite ${i * 0.6}s`,
               }}
             >
               <div className="relative group">
