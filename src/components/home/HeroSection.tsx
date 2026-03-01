@@ -1,9 +1,19 @@
-import { ArrowRight, ShoppingBag, Package, CreditCard, Search, Tag, Heart, Store } from "lucide-react";
+import { ArrowRight, ShoppingBag, Package, CreditCard, Search, Tag, Heart, Store, Truck, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 
-function useMurmuration(canvasRef: React.RefObject<HTMLCanvasElement | null>) {
+interface IconNode {
+  x: number;
+  y: number;
+  icon: string;
+  pulse: number;
+}
+
+function useMurmuration(
+  canvasRef: React.RefObject<HTMLCanvasElement | null>,
+  iconNodes: IconNode[]
+) {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -22,8 +32,8 @@ function useMurmuration(canvasRef: React.RefObject<HTMLCanvasElement | null>) {
     resize();
     window.addEventListener("resize", resize);
 
-    const NUM = 160;
-    const particles: { x: number; y: number; vx: number; vy: number; size: number; hue: number }[] = [];
+    const NUM = 200;
+    const particles: { x: number; y: number; vx: number; vy: number; size: number; hue: number; targetNode: number }[] = [];
     const w = () => canvas.width / dpr;
     const h = () => canvas.height / dpr;
 
@@ -33,8 +43,9 @@ function useMurmuration(canvasRef: React.RefObject<HTMLCanvasElement | null>) {
         y: Math.random() * h(),
         vx: (Math.random() - 0.5) * 2,
         vy: (Math.random() - 0.5) * 2,
-        size: 1.5 + Math.random() * 2.5,
-        hue: 150 + Math.random() * 25,
+        size: 1.2 + Math.random() * 2.8,
+        hue: 150 + Math.random() * 30,
+        targetNode: iconNodes.length > 0 ? Math.floor(Math.random() * iconNodes.length) : -1,
       });
     }
 
@@ -50,19 +61,35 @@ function useMurmuration(canvasRef: React.RefObject<HTMLCanvasElement | null>) {
     canvas.addEventListener("mousemove", onMove);
 
     const loop = () => {
-      time += 0.004;
+      time += 0.005;
       const W = w();
       const H = h();
       ctx.clearRect(0, 0, W, H);
 
-      // Two orbiting attractor points
-      const ax1 = W * 0.5 + Math.cos(time * 0.7) * W * 0.25;
-      const ay1 = H * 0.4 + Math.sin(time * 0.9) * H * 0.22;
-      const ax2 = W * 0.5 + Math.cos(time * 0.5 + 2) * W * 0.3;
-      const ay2 = H * 0.6 + Math.sin(time * 0.6 + 1) * H * 0.2;
+      // Update icon node pulses
+      for (const node of iconNodes) {
+        node.pulse = 0.6 + Math.sin(time * 3 + node.x * 0.01) * 0.4;
+      }
+
+      // Draw glowing halos around icon nodes
+      for (const node of iconNodes) {
+        const gradient = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, 80);
+        gradient.addColorStop(0, `hsla(160, 84%, 45%, ${0.12 * node.pulse})`);
+        gradient.addColorStop(0.5, `hsla(160, 84%, 40%, ${0.04 * node.pulse})`);
+        gradient.addColorStop(1, `hsla(160, 84%, 35%, 0)`);
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, 80, 0, Math.PI * 2);
+        ctx.fillStyle = gradient;
+        ctx.fill();
+      }
 
       for (let i = 0; i < NUM; i++) {
         const p = particles[i];
+
+        // Occasionally switch target node
+        if (Math.random() < 0.002 && iconNodes.length > 0) {
+          p.targetNode = Math.floor(Math.random() * iconNodes.length);
+        }
 
         // Simplified flocking
         let avgVx = 0, avgVy = 0, sepX = 0, sepY = 0, neighbors = 0;
@@ -72,12 +99,12 @@ function useMurmuration(canvasRef: React.RefObject<HTMLCanvasElement | null>) {
           const dx = o.x - p.x;
           const dy = o.y - p.y;
           const dist = dx * dx + dy * dy;
-          if (dist < 6400) { // 80px radius
+          if (dist < 5000) {
             const d = Math.sqrt(dist);
             avgVx += o.vx;
             avgVy += o.vy;
             neighbors++;
-            if (d < 25) {
+            if (d < 22) {
               sepX -= dx / d;
               sepY -= dy / d;
             }
@@ -85,36 +112,45 @@ function useMurmuration(canvasRef: React.RefObject<HTMLCanvasElement | null>) {
         }
 
         if (neighbors > 0) {
-          p.vx += (avgVx / neighbors - p.vx) * 0.02;
-          p.vy += (avgVy / neighbors - p.vy) * 0.02;
+          p.vx += (avgVx / neighbors - p.vx) * 0.025;
+          p.vy += (avgVy / neighbors - p.vy) * 0.025;
         }
-        p.vx += sepX * 0.05;
-        p.vy += sepY * 0.05;
+        p.vx += sepX * 0.06;
+        p.vy += sepY * 0.06;
 
-        // Attract to orbiting points
-        const d1x = ax1 - p.x, d1y = ay1 - p.y;
-        const d1 = Math.sqrt(d1x * d1x + d1y * d1y) + 1;
-        p.vx += (d1x / d1) * 0.012;
-        p.vy += (d1y / d1) * 0.012;
+        // Attract to target icon node (primary attractor)
+        if (p.targetNode >= 0 && p.targetNode < iconNodes.length) {
+          const node = iconNodes[p.targetNode];
+          const dx = node.x - p.x;
+          const dy = node.y - p.y;
+          const d = Math.sqrt(dx * dx + dy * dy) + 1;
+          // Orbit: attract but add tangential force
+          const orbitForce = 0.015;
+          p.vx += (dx / d) * orbitForce + (-dy / d) * 0.008;
+          p.vy += (dy / d) * orbitForce + (dx / d) * 0.008;
+        }
 
-        const d2x = ax2 - p.x, d2y = ay2 - p.y;
-        const d2 = Math.sqrt(d2x * d2x + d2y * d2y) + 1;
-        p.vx += (d2x / d2) * 0.008;
-        p.vy += (d2y / d2) * 0.008;
+        // Secondary wandering attractor
+        const ax = W * 0.5 + Math.cos(time * 0.6) * W * 0.3;
+        const ay = H * 0.5 + Math.sin(time * 0.8) * H * 0.25;
+        const dax = ax - p.x, day = ay - p.y;
+        const da = Math.sqrt(dax * dax + day * day) + 1;
+        p.vx += (dax / da) * 0.005;
+        p.vy += (day / da) * 0.005;
 
         // Mouse repulsion
         const mx = p.x - mouseX, my = p.y - mouseY;
         const md = Math.sqrt(mx * mx + my * my) + 1;
-        if (md < 130) {
-          p.vx += (mx / md) * 0.5;
-          p.vy += (my / md) * 0.5;
+        if (md < 150) {
+          p.vx += (mx / md) * 0.7;
+          p.vy += (my / md) * 0.7;
         }
 
         // Speed limit
         const speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
-        if (speed > 2.5) {
-          p.vx = (p.vx / speed) * 2.5;
-          p.vy = (p.vy / speed) * 2.5;
+        if (speed > 3) {
+          p.vx = (p.vx / speed) * 3;
+          p.vy = (p.vy / speed) * 3;
         }
 
         p.x += p.vx;
@@ -126,30 +162,46 @@ function useMurmuration(canvasRef: React.RefObject<HTMLCanvasElement | null>) {
         if (p.y < -20) p.y = H + 20;
         if (p.y > H + 20) p.y = -20;
 
-        // Connections
+        // Connections between particles
         for (let j = i + 1; j < NUM; j++) {
           const o = particles[j];
           const dx = o.x - p.x;
           const dy = o.y - p.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 65) {
-            const alpha = (1 - dist / 65) * 0.18;
+          if (dist < 55) {
+            const alpha = (1 - dist / 55) * 0.25;
             ctx.beginPath();
-            ctx.strokeStyle = `hsla(${p.hue}, 84%, 45%, ${alpha})`;
-            ctx.lineWidth = 0.6;
+            ctx.strokeStyle = `hsla(${p.hue}, 84%, 50%, ${alpha})`;
+            ctx.lineWidth = 0.7;
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(o.x, o.y);
             ctx.stroke();
           }
         }
 
-        // Draw dot with glow
-        const glow = 0.45 + Math.sin(time * 3 + i) * 0.15;
+        // Connections to nearby icon nodes
+        for (const node of iconNodes) {
+          const dx = node.x - p.x;
+          const dy = node.y - p.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 90) {
+            const alpha = (1 - dist / 90) * 0.3;
+            ctx.beginPath();
+            ctx.strokeStyle = `hsla(160, 84%, 55%, ${alpha})`;
+            ctx.lineWidth = 0.8;
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(node.x, node.y);
+            ctx.stroke();
+          }
+        }
+
+        // Draw particle with glow
+        const glow = 0.5 + Math.sin(time * 4 + i) * 0.2;
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = `hsla(${p.hue}, 84%, 55%, ${glow})`;
-        ctx.shadowColor = `hsla(${p.hue}, 84%, 50%, 0.5)`;
-        ctx.shadowBlur = 10;
+        ctx.fillStyle = `hsla(${p.hue}, 84%, 60%, ${glow})`;
+        ctx.shadowColor = `hsla(${p.hue}, 90%, 55%, 0.6)`;
+        ctx.shadowBlur = 12;
         ctx.fill();
         ctx.shadowBlur = 0;
       }
@@ -164,94 +216,148 @@ function useMurmuration(canvasRef: React.RefObject<HTMLCanvasElement | null>) {
       window.removeEventListener("resize", resize);
       canvas.removeEventListener("mousemove", onMove);
     };
-  }, [canvasRef]);
+  }, [canvasRef, iconNodes]);
 }
+
+const ICON_POSITIONS = [
+  { xPct: 0.12, yPct: 0.25, icon: "bag" },
+  { xPct: 0.88, yPct: 0.2, icon: "tag" },
+  { xPct: 0.08, yPct: 0.7, icon: "package" },
+  { xPct: 0.92, yPct: 0.65, icon: "heart" },
+  { xPct: 0.22, yPct: 0.45, icon: "card" },
+  { xPct: 0.78, yPct: 0.42, icon: "star" },
+  { xPct: 0.5, yPct: 0.12, icon: "truck" },
+  { xPct: 0.5, yPct: 0.88, icon: "store" },
+];
+
+const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
+  bag: ShoppingBag,
+  tag: Tag,
+  package: Package,
+  heart: Heart,
+  card: CreditCard,
+  star: Star,
+  truck: Truck,
+  store: Store,
+};
 
 export function HeroSection() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  useMurmuration(canvasRef);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [iconNodes, setIconNodes] = useState<IconNode[]>([]);
+
+  const updateIconPositions = useCallback(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    const rect = container.getBoundingClientRect();
+    const nodes = ICON_POSITIONS.map((pos) => ({
+      x: pos.xPct * rect.width,
+      y: pos.yPct * rect.height,
+      icon: pos.icon,
+      pulse: 1,
+    }));
+    setIconNodes(nodes);
+  }, []);
+
+  useEffect(() => {
+    updateIconPositions();
+    window.addEventListener("resize", updateIconPositions);
+    return () => window.removeEventListener("resize", updateIconPositions);
+  }, [updateIconPositions]);
+
+  useMurmuration(canvasRef, iconNodes);
 
   return (
-    <section className="relative overflow-hidden bg-gradient-hero min-h-[600px] flex items-center">
+    <section
+      ref={containerRef}
+      className="relative overflow-hidden bg-gradient-hero min-h-[650px] flex items-center"
+    >
       <canvas
         ref={canvasRef}
         className="absolute inset-0 w-full h-full"
         style={{ pointerEvents: "auto" }}
       />
 
-      {/* Floating shop icons */}
-      <div className="absolute inset-0 z-[5] pointer-events-none overflow-hidden">
-        <div className="absolute top-[12%] left-[8%] animate-float opacity-20">
-          <ShoppingBag className="h-10 w-10 text-primary" />
-        </div>
-        <div className="absolute top-[18%] right-[12%] animate-float opacity-15" style={{ animationDelay: "1s" }}>
-          <Tag className="h-8 w-8 text-primary" />
-        </div>
-        <div className="absolute bottom-[22%] left-[15%] animate-float opacity-15" style={{ animationDelay: "2s" }}>
-          <Package className="h-9 w-9 text-primary" />
-        </div>
-        <div className="absolute bottom-[30%] right-[10%] animate-float opacity-20" style={{ animationDelay: "3s" }}>
-          <Heart className="h-7 w-7 text-primary" />
-        </div>
-        <div className="absolute top-[45%] left-[5%] animate-float opacity-10" style={{ animationDelay: "4s" }}>
-          <CreditCard className="h-8 w-8 text-primary" />
-        </div>
-        <div className="absolute top-[55%] right-[6%] animate-float opacity-10" style={{ animationDelay: "2.5s" }}>
-          <Store className="h-9 w-9 text-primary" />
-        </div>
+      {/* Icon nodes rendered as DOM elements on top of canvas */}
+      <div className="absolute inset-0 z-[5] pointer-events-none">
+        {iconNodes.map((node, i) => {
+          const IconComp = ICON_MAP[node.icon];
+          if (!IconComp) return null;
+          return (
+            <div
+              key={i}
+              className="absolute flex items-center justify-center"
+              style={{
+                left: node.x,
+                top: node.y,
+                transform: "translate(-50%, -50%)",
+              }}
+            >
+              <div className="relative">
+                <div className="absolute inset-0 rounded-full bg-primary/20 blur-xl scale-150 animate-pulse-soft" />
+                <div className="relative w-12 h-12 rounded-xl bg-background/80 backdrop-blur-md border border-primary/30 flex items-center justify-center shadow-glow">
+                  <IconComp className="h-5 w-5 text-primary" />
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       <div className="container py-16 md:py-24 lg:py-32 relative z-10 pointer-events-none">
         <div className="mx-auto max-w-3xl text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6 animate-fade-in backdrop-blur-sm border border-primary/20 pointer-events-auto">
+          <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary/15 text-primary text-sm font-semibold mb-8 animate-fade-in backdrop-blur-sm border border-primary/25 pointer-events-auto shadow-glow">
             <Store className="h-4 w-4" />
             <span>Multi-Vendor Marketplace</span>
           </div>
 
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight mb-6 animate-slide-up">
-            One Place to{" "}
-            <span className="text-gradient">Browse, Compare</span>
-            {" "}&amp; Buy
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-black tracking-tight mb-6 animate-slide-up text-foreground leading-[1.1]">
+            Discover{" "}
+            <span className="text-gradient">Amazing Products</span>
+            <br />
+            From Top Sellers
           </h1>
 
           <p
-            className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto animate-slide-up"
+            className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto animate-slide-up leading-relaxed"
             style={{ animationDelay: "0.1s" }}
           >
-            We bring independent sellers together so you can explore products
-            across categories, compare prices, and check out in one cart.
+            One cart, many shops. Browse thousands of products from independent
+            sellers, compare prices, and checkout seamlessly.
           </p>
 
           <div
             className="flex flex-col sm:flex-row gap-4 justify-center animate-slide-up pointer-events-auto"
             style={{ animationDelay: "0.2s" }}
           >
-            <Button variant="hero" size="lg" asChild>
+            <Button variant="hero" size="lg" className="text-base px-8 py-6 shadow-glow" asChild>
               <Link to="/shop">
                 <Search className="h-5 w-5" />
-                Browse Products
+                Start Shopping
+                <ArrowRight className="h-4 w-4 ml-1" />
               </Link>
             </Button>
-            <Button variant="outline" size="lg" asChild>
+            <Button variant="outline" size="lg" className="text-base px-8 py-6 border-primary/30 hover:bg-primary/10" asChild>
               <Link to="/about">
                 <Store className="h-5 w-5" />
-                Open Your Shop
+                Become a Seller
               </Link>
             </Button>
           </div>
 
           <div
-            className="flex flex-wrap justify-center gap-3 mt-12 animate-fade-in"
+            className="flex flex-wrap justify-center gap-4 mt-14 animate-fade-in"
             style={{ animationDelay: "0.3s" }}
           >
             {[
               { icon: ShoppingBag, label: "Multi-vendor cart" },
               { icon: CreditCard, label: "Secure checkout" },
               { icon: Package, label: "Order tracking" },
+              { icon: Star, label: "Verified sellers" },
             ].map(({ icon: Icon, label }) => (
               <div
                 key={label}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-background/60 backdrop-blur-sm border border-border/60 text-sm text-muted-foreground"
+                className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-background/70 backdrop-blur-md border border-border/50 text-sm font-medium text-muted-foreground shadow-soft"
               >
                 <Icon className="h-4 w-4 text-primary" />
                 {label}
