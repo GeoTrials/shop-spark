@@ -33,7 +33,9 @@ function useMurmuration(
     window.addEventListener("resize", resize);
 
     const NUM = 200;
-    const particles: { x: number; y: number; vx: number; vy: number; size: number; hue: number; targetNode: number }[] = [];
+    const ICON_PARTICLES = 12; // first 12 particles render as icons
+    const iconEmojis = ["🛒", "🏷️", "📦", "💳", "⭐", "🛍️", "❤️", "🚚", "🏪", "💎", "🎁", "✨"];
+    const particles: { x: number; y: number; vx: number; vy: number; size: number; hue: number; targetNode: number; isIcon: boolean; iconIdx: number }[] = [];
     const w = () => canvas.width / dpr;
     const h = () => canvas.height / dpr;
 
@@ -43,9 +45,11 @@ function useMurmuration(
         y: Math.random() * h(),
         vx: (Math.random() - 0.5) * 2,
         vy: (Math.random() - 0.5) * 2,
-        size: 1.2 + Math.random() * 2.8,
+        size: i < ICON_PARTICLES ? 2.5 : 1.2 + Math.random() * 2.8,
         hue: 150 + Math.random() * 30,
         targetNode: iconNodes.length > 0 ? Math.floor(Math.random() * iconNodes.length) : -1,
+        isIcon: i < ICON_PARTICLES,
+        iconIdx: i < ICON_PARTICLES ? i % iconEmojis.length : -1,
       });
     }
 
@@ -195,15 +199,28 @@ function useMurmuration(
           }
         }
 
-        // Draw particle with glow
-        const glow = 0.5 + Math.sin(time * 4 + i) * 0.2;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = `hsla(${p.hue}, 84%, 60%, ${glow})`;
-        ctx.shadowColor = `hsla(${p.hue}, 90%, 55%, 0.6)`;
-        ctx.shadowBlur = 12;
-        ctx.fill();
-        ctx.shadowBlur = 0;
+        // Draw particle
+        if (p.isIcon && p.iconIdx >= 0) {
+          // Draw as emoji icon
+          const iconAlpha = 0.4 + Math.sin(time * 3 + i * 0.5) * 0.15;
+          ctx.save();
+          ctx.globalAlpha = iconAlpha;
+          ctx.font = "14px serif";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(iconEmojis[p.iconIdx], p.x, p.y);
+          ctx.restore();
+        } else {
+          // Draw dot with glow
+          const glow = 0.5 + Math.sin(time * 4 + i) * 0.2;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fillStyle = `hsla(${p.hue}, 84%, 60%, ${glow})`;
+          ctx.shadowColor = `hsla(${p.hue}, 90%, 55%, 0.6)`;
+          ctx.shadowBlur = 12;
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        }
       }
 
       animId = requestAnimationFrame(loop);
@@ -286,16 +303,18 @@ export function HeroSection() {
           return (
             <div
               key={i}
-              className="absolute flex items-center justify-center"
+              className="absolute flex items-center justify-center transition-transform"
               style={{
                 left: node.x,
                 top: node.y,
                 transform: "translate(-50%, -50%)",
+                animation: `float ${5 + (i % 3)}s ease-in-out infinite ${i * 0.4}s, spin-slow ${20 + i * 5}s linear infinite`,
               }}
             >
-              <div className="relative">
-                <div className="absolute inset-0 rounded-full bg-primary/20 blur-xl scale-150 animate-pulse-soft" />
-                <div className="relative w-12 h-12 rounded-xl bg-background/80 backdrop-blur-md border border-primary/30 flex items-center justify-center shadow-glow">
+              <div className="relative group">
+                <div className="absolute inset-0 rounded-full bg-primary/25 blur-xl scale-[2] animate-pulse-soft" />
+                <div className="absolute inset-0 rounded-xl bg-primary/10 blur-md scale-125 animate-pulse-soft" style={{ animationDelay: "0.5s" }} />
+                <div className="relative w-12 h-12 rounded-xl bg-background/80 backdrop-blur-md border border-primary/30 flex items-center justify-center shadow-glow animate-pulse-soft" style={{ animationDelay: `${i * 0.2}s` }}>
                   <IconComp className="h-5 w-5 text-primary" />
                 </div>
               </div>
