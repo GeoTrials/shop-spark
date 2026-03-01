@@ -146,13 +146,36 @@
   }
 
   @keyframes float {
-    0%, 100% { transform: translateY(0px) rotate(0deg); }
-    50% { transform: translateY(-12px) rotate(3deg); }
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-12px); }
   }
 
-  @keyframes spin-slow {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+  @keyframes icon-drift-0 {
+    0%, 100% { transform: translate(-50%, -50%) translate(0px, 0px); }
+    25% { transform: translate(-50%, -50%) translate(8px, -12px); }
+    50% { transform: translate(-50%, -50%) translate(-6px, -4px); }
+    75% { transform: translate(-50%, -50%) translate(4px, 10px); }
+  }
+
+  @keyframes icon-drift-1 {
+    0%, 100% { transform: translate(-50%, -50%) translate(0px, 0px); }
+    25% { transform: translate(-50%, -50%) translate(-10px, 6px); }
+    50% { transform: translate(-50%, -50%) translate(5px, 14px); }
+    75% { transform: translate(-50%, -50%) translate(-8px, -8px); }
+  }
+
+  @keyframes icon-drift-2 {
+    0%, 100% { transform: translate(-50%, -50%) translate(0px, 0px); }
+    25% { transform: translate(-50%, -50%) translate(12px, 4px); }
+    50% { transform: translate(-50%, -50%) translate(-4px, -10px); }
+    75% { transform: translate(-50%, -50%) translate(-10px, 8px); }
+  }
+
+  @keyframes icon-drift-3 {
+    0%, 100% { transform: translate(-50%, -50%) translate(0px, 0px); }
+    25% { transform: translate(-50%, -50%) translate(-6px, -14px); }
+    50% { transform: translate(-50%, -50%) translate(10px, 6px); }
+    75% { transform: translate(-50%, -50%) translate(6px, -10px); }
   }
 
   .animate-pulse-soft {
